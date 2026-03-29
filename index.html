@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор роли</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .student {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .teacher {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .admin {
+      background-color: #f44336;
+      color: white;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Кто вы?</h1>
+
+    <div class="buttons">
+      <button class="student" onclick="goTo('student')">Учащийся</button>
+      <button class="teacher" onclick="goTo('teacher')">Преподаватель</button>
+      <button class="admin" onclick="goTo('admin')">Администратор</button>
+    </div>
+  </div>
+
+  <script>
+    function goTo(role) {
+      window.location.href = role + ".html";
+    }
+  </script>
+</body>
+</html>
