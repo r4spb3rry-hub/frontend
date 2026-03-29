@@ -33,6 +33,7 @@
       background: #4CAF50;
       color: white;
       border: none;
+      margin-top: 10px;
     }
 
     a {
@@ -45,15 +46,61 @@
 <body>
   <div class="box">
     <h2>Вход учащегося</h2>
-    <input type="text" placeholder="Логин">
-    <input type="password" placeholder="Пароль">
+
+    <input type="text" id="login" placeholder="Логин">
+    <input type="password" id="password" placeholder="Пароль">
+
     <button onclick="login()">Войти</button>
+    <button onclick="register()">Зарегистрироваться</button>
+
+    <p id="error" style="color:red;"></p>
+
     <a href="index.html">Назад</a>
   </div>
 
   <script>
-    function login() {
-      alert("Вход выполнен (пока без проверки)");
+    async function login() {
+      let login = document.getElementById("login").value;
+      let password = document.getElementById("password").value;
+
+      let res = await fetch("https://eduflow-92s4.onrender.com/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          login: login,
+          password: password
+        })
+      });
+
+      let data = await res.json();
+
+      if (data.status === "ok") {
+        localStorage.setItem("user", login);
+        window.location.href = "student-dashboard.html";
+      } else {
+        document.getElementById("error").innerText = "Неверный логин или пароль";
+      }
+    }
+
+    async function register() {
+      let login = document.getElementById("login").value;
+      let password = document.getElementById("password").value;
+
+      await fetch("https://eduflow-92s4.onrender.com/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          login: login,
+          password: password,
+          role: "student"
+        })
+      });
+
+      alert("Пользователь создан!");
     }
   </script>
 </body>
