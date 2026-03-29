@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(cors());
 
 // 🔗 ВСТАВИ СЮДА СВОЮ ССЫЛКУ ИЗ MONGODB ATLAS
-mongoose.connect(mongodb+srv://r4spb3rry-host:vNoOAOPHb2LgW8nx@clusterforeduflow.xsyvcov.mongodb.net/)
+mongoose.connect("mongodb+srv://r4spb3rry-host:vNoOAOPHb2LgW8nx@clusterforeduflow.xsyvcov.mongodb.net/")
   .then(() => console.log("MongoDB подключен"))
   .catch(err => console.log(err));
 
@@ -36,4 +36,5 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("Сервер запущен"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Сервер запущен"));
