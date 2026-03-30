@@ -27,12 +27,18 @@ app.post("/register", async (req, res) => {
 
 // вход
 app.post("/login", async (req, res) => {
-  const user = await User.findOne(req.body);
+  const { login, password } = req.body;
+
+  const user = await User.findOne({ login, password });
 
   if (user) {
-    res.send({status: "ok", user});
+    res.send({
+      status: "ok",
+      role: user.role,
+      login: user.login
+    });
   } else {
-    res.send({status: "error"});
+    res.send({ status: "error" });
   }
 });
 
