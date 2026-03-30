@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Админ-панель</h1>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Логин</th>
+      <th>Роль</th>
+      <th>Удалить</th>
+    </tr>
+  </thead>
+  <tbody id="users"></tbody>
+</table>
+
+<script>
+const API = "https://eduflow-92s4.onrender.com";
+
+if (localStorage.getItem("role") !== "admin") {
+  window.location.href = "index.html";
+}
+
+async function loadUsers() {
+  let res = await fetch(API + "/users");
+  let users = await res.json();
+
+  let html = "";
+
+  users.forEach(u => {
+    html += `
+      <tr>
+        <td>${u.login}</td>
+        <td>${u.role}</td>
+        <td><button onclick="del('${u._id}')">X</button></td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("users").innerHTML = html;
+}
+
+async function del(id) {
+  await fetch(API + "/users/" + id, { method: "DELETE" });
+  loadUsers();
+}
+
+loadUsers();
+</script>
+
+</body>
+</html>
