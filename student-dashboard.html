@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Кабинет учащегося</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #4CAF50;
+      color: white;
+      text-align: center;
+      padding-top: 100px;
+    }
+
+    .box {
+      background: white;
+      color: black;
+      padding: 30px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h1>Кабинет учащегося</h1>
+    <p id="user"></p>
+
+    <button onclick="logout()">Выйти</button>
+  </div>
+
+  <script>
+    let user = localStorage.getItem("user");
+    let role = localStorage.getItem("role");
+
+    if (role !== "student") {
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("user").innerText = "Привет, " + user;
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
