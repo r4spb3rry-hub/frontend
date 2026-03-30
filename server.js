@@ -14,9 +14,14 @@ mongoose.connect(process.env.MONGO_URI)
 
 // школа
 const School = mongoose.model("School", {
+  name: String
+});
+
+// группа
+const Group = mongoose.model("Group", {
   name: String,
-  students: [String],
-  teachers: [String]
+  schoolId: String,
+  students: [String]
 });
 
 // пользователь
@@ -29,6 +34,19 @@ const User = mongoose.model("User", {
 
 /* ===== API ===== */
 
+// создать школу (админ)
+app.post("/create-school", async (req, res) => {
+  const { name } = req.body;
+
+  const school = new School({ name });
+  await school.save();
+
+  res.send({
+    status: "created",
+    schoolId: school._id
+  });
+});
+
 // получить школы
 app.get("/schools", async (req, res) => {
   const schools = await School.find();
@@ -40,19 +58,8 @@ app.post("/register", async (req, res) => {
   const { login, password, role, schoolId } = req.body;
 
   const school = await School.findById(schoolId);
-
   if (!school) {
     return res.send({ status: "error", message: "Школа не найдена" });
-  }
-
-  // проверка ученика
-  if (role === "student" && !school.students.includes(login)) {
-    return res.send({ status: "error", message: "Вас нет в списке учеников" });
-  }
-
-  // проверка преподавателя
-  if (role === "teacher" && !school.teachers.includes(login)) {
-    return res.send({ status: "error", message: "Вас нет в списке преподавателей" });
   }
 
   const user = new User({ login, password, role, schoolId });
@@ -66,10 +73,7 @@ app.post("/login", async (req, res) => {
   const { login, password } = req.body;
 
   const user = await User.findOne({ login, password });
-
-  if (!user) {
-    return res.send({ status: "error" });
-  }
+  if (!user) return res.send({ status: "error" });
 
   res.send({
     status: "ok",
@@ -87,10 +91,42 @@ app.get("/users", async (req, res) => {
   res.send(users);
 });
 
-// удалить
-app.delete("/users/:id", async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
-  res.send({ status: "deleted" });
+// ВСЕ данные (ТОЛЬКО ДЛЯ ТЕБЯ)
+app.get("/all-data", async (req, res) => {
+  const users = await User.find();
+  const schools = await School.find();
+  const groups = await Group.find();
+
+  res.send({ users, schools, groups });
+});
+
+// создать группу
+app.post("/create-group", async (req, res) => {
+  const { name, schoolId } = req.body;
+
+  const group = new Group({ name, schoolId, students: [] });
+  await group.save();
+
+  res.send({ status: "created" });
+});
+
+// добавить ученика в группу
+app.post("/add-student", async (req, res) => {
+  const { groupId, login } = req.body;
+
+  await Group.findByIdAndUpdate(groupId, {
+    $push: { students: login }
+  });
+
+  res.send({ status: "ok" });
+});
+
+// получить группы
+app.get("/groups", async (req, res) => {
+  const { schoolId } = req.query;
+
+  const groups = await Group.find({ schoolId });
+  res.send(groups);
 });
 
 const PORT = process.env.PORT || 3000;
