@@ -8,62 +8,33 @@
 <body>
   <h2>Преподаватель</h2>
 
-  <input id="login" placeholder="Логин"><br><br>
-  <input id="password" type="password" placeholder="Пароль"><br><br>
+<input id="login" placeholder="Логин"><br>
+<input id="password" placeholder="Пароль"><br>
+<input id="schoolId" placeholder="ID школы"><br>
 
-  <button onclick="login()">Войти</button>
-  <button onclick="register()">Зарегистрироваться</button>
+<button onclick="register()">Вход</button>
 
-  <p id="error" style="color:red;"></p>
+<script>
+const API = "https://eduflow-92s4.onrender.com";
 
-  <script>
-    const API = "https://eduflow-92s4.onrender.com";
+async function register() {
+  let login = document.getElementById("login").value;
+  let password = document.getElementById("password").value;
+  let schoolId = document.getElementById("schoolId").value;
 
-    async function login() {
-      let login = document.getElementById("login").value;
-      let password = document.getElementById("password").value;
+  await fetch(API + "/register", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      login,
+      password,
+      role: "teacher",
+      schoolId
+    })
+  });
 
-      let res = await fetch(API + "/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ login, password })
-      });
-
-      let data = await res.json();
-
-      if (data.status === "ok") {
-        localStorage.setItem("user", data.login);
-        localStorage.setItem("role", data.role);
-
-        if (data.role === "student") {
-          window.location.href = "student-dashboard.html";
-        } else if (data.role === "teacher") {
-          window.location.href = "teacher-dashboard.html";
-        } else if (data.role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        }
-
-      } else {
-        document.getElementById("error").innerText = "Ошибка входа";
-      }
-    }
-
-    async function register() {
-      let login = document.getElementById("login").value;
-      let password = document.getElementById("password").value;
-
-      await fetch(API + "/register", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          login,
-          password,
-          role: "teacher"
-        })
-      });
-
-      alert("Пользователь создан");
-    }
-  </script>
+  alert("Готово");
+}
+</script>
 </body>
 </html>
