@@ -1,0 +1,21 @@
+<h1>Группы</h1>
+
+<input id="name" placeholder="Название группы">
+<button onclick="create()">Создать</button>
+
+<script>
+const API = "https://eduflow-92s4.onrender.com";
+
+async function create() {
+  let name = document.getElementById("name").value;
+  let schoolId = localStorage.getItem("schoolId");
+
+  await fetch(API + "/create-group", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ name, schoolId })
+  });
+
+  alert("Группа создана");
+}
+</script>
