@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 🔗 ВСТАВИ СЮДА СВОЮ ССЫЛКУ ИЗ MONGODB ATLAS
+// 🔐 подключение к MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB подключен"))
   .catch(err => console.log(err));
@@ -20,9 +20,12 @@ const User = mongoose.model("User", {
 
 // регистрация
 app.post("/register", async (req, res) => {
-  const user = new User(req.body);
+  const { login, password, role } = req.body;
+
+  const user = new User({ login, password, role });
   await user.save();
-  res.send("Пользователь создан");
+
+  res.send({ status: "created" });
 });
 
 // вход
@@ -34,13 +37,26 @@ app.post("/login", async (req, res) => {
   if (user) {
     res.send({
       status: "ok",
-      role: user.role,
-      login: user.login
+      login: user.login,
+      role: user.role
     });
   } else {
     res.send({ status: "error" });
   }
 });
 
+// список пользователей
+app.get("/users", async (req, res) => {
+  const users = await User.find();
+  res.send(users);
+});
+
+// удаление пользователя
+app.delete("/users/:id", async (req, res) => {
+  await User.findByIdAndDelete(req.params.id);
+  res.send({ status: "deleted" });
+});
+
+// порт
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Сервер запущен"));
