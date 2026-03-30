@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(cors());
 
 // 🔗 ВСТАВИ СЮДА СВОЮ ССЫЛКУ ИЗ MONGODB ATLAS
-mongoose.connect("mongodb+srv://r4spb3rry-host:vNoOAOPHb2LgW8nx@clusterforeduflow.xsyvcov.mongodb.net/")
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB подключен"))
   .catch(err => console.log(err));
 
