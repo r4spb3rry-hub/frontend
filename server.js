@@ -170,6 +170,30 @@ app.post("/generate-schedule", async (req, res) => {
 app.get("/schedule", async (req, res) => {
   const { groupId } = req.query;
 
+  /* ===== СПРАВОЧНИКИ ===== */
+
+// предметы
+const Subject = mongoose.model("Subject", {
+  name: String
+});
+
+// кабинеты
+const Room = mongoose.model("Room", {
+  name: String,
+  schoolId: String
+});
+
+// расписание
+const Schedule = mongoose.model("Schedule", {
+  groupId: String,
+  subject: String,
+  teacher: String,
+  room: String,
+  date: Date,
+  time: String,
+  cancelled: { type: Boolean, default: false }
+});
+
   const lessons = await Schedule.find({ groupId });
   res.send(lessons);
 });
