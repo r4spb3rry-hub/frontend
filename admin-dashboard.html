@@ -1,30 +1,78 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style>
+body {margin:0;font-family:Arial;background:#f8e1e7;}
+.nav {background:#e91e63;padding:15px;color:white;display:flex;gap:20px;}
+.container {padding:20px;}
+.box {background:white;padding:20px;border-radius:10px;margin-top:20px;}
+button {background:#e91e63;color:white;border:none;padding:10px;}
+</style>
+</head>
+
 <body>
 
-<h1>Администратор учебного заведения</h1>
+<div class="nav">
+  <div onclick="show('teachers')">Преподаватели</div>
+  <div onclick="show('groups')">Группы</div>
+</div>
 
-<input id="schoolName" placeholder="Название школы">
-<button onclick="createSchool()">Создать учебное заведение</button>
+<div class="container">
 
-<p id="schoolId"></p>
+<div id="teachers" class="box">
+  <h2>Добавить преподавателя</h2>
+
+  <input id="name" placeholder="Имя">
+  <button onclick="addTeacher()">Добавить</button>
+
+  <div id="teachersList"></div>
+</div>
+
+<div id="groups" class="box" style="display:none">
+  <h2>Группы</h2>
+
+  <input id="groupName" placeholder="Название группы">
+  <button onclick="createGroup()">Создать</button>
+
+  <div id="groupsList"></div>
+</div>
+
+</div>
 
 <script>
-const API = "https://eduflow-92s4.onrender.com";
+const API="https://eduflow-92s4.onrender.com";
 
-async function createSchool() {
-  let name = document.getElementById("schoolName").value;
+function show(p){
+  teachers.style.display="none";
+  groups.style.display="none";
+  document.getElementById(p).style.display="block";
+}
 
-  let res = await fetch(API + "/create-school", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ name })
+async function addTeacher(){
+  let res = await fetch(API+"/add-teacher",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:name.value,
+      schoolId:localStorage.getItem("schoolId")
+    })
   });
 
   let data = await res.json();
+  alert("Логин: "+data.login+" Пароль: "+data.password);
+}
 
-  document.getElementById("schoolId").innerText =
-    "ID школы: " + data.schoolId;
+async function createGroup(){
+  await fetch(API+"/create-group",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:groupName.value,
+      schoolId:localStorage.getItem("schoolId")
+    })
+  });
+
+  alert("Создано");
 }
 </script>
 
