@@ -7,36 +7,39 @@ body {margin:0;font-family:Arial;background:#f8e1e7;}
 
 .nav {
   background:#e91e63;
-  padding:15px;
   color:white;
+  padding:15px;
   display:flex;
   gap:20px;
 }
 
-.nav div {
-  cursor:pointer;
-}
+.nav div {cursor:pointer;}
 
-.container {
-  padding:20px;
-}
+.container {padding:20px;}
 
-.box {
+.card {
   background:white;
   padding:20px;
   border-radius:10px;
   margin-top:20px;
 }
 
-input, button {
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td {
+  border:1px solid #ddd;
   padding:10px;
-  margin:5px;
 }
 
 button {
   background:#e91e63;
   color:white;
   border:none;
+  padding:8px 12px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -51,42 +54,45 @@ button {
 
 <div class="container">
 
-<div id="schools" class="box">
-  <h2>Учебные заведения</h2>
+<div id="schools" class="card">
+<h2>Учебные заведения</h2>
 
-  <input id="schoolName" placeholder="Название школы">
-  <input id="adminName" placeholder="Имя администратора">
+<input id="schoolName" placeholder="Название">
+<input id="adminName" placeholder="Админ">
+<button onclick="createSchool()">Создать</button>
 
-  <button onclick="createSchool()">Создать</button>
-
-  <div id="schoolsList"></div>
+<table>
+<tr><th>Название</th><th>ID</th></tr>
+<tbody id="schoolsTable"></tbody>
+</table>
 </div>
 
-<div id="users" class="box" style="display:none">
-  <h2>Все пользователи</h2>
-  <div id="usersList"></div>
+<div id="users" class="card" style="display:none">
+<h2>Пользователи</h2>
+<table>
+<tr><th>Имя</th><th>Роль</th></tr>
+<tbody id="usersTable"></tbody>
+</table>
 </div>
 
-<div id="groups" class="box" style="display:none">
-  <h2>Все группы</h2>
-  <div id="groupsList"></div>
+<div id="groups" class="card" style="display:none">
+<h2>Группы</h2>
+<table>
+<tr><th>Название</th></tr>
+<tbody id="groupsTable"></tbody>
+</table>
 </div>
 
 </div>
 
 <script>
-const API = "https://eduflow-92s4.onrender.com";
+const API="https://eduflow-92s4.onrender.com";
 
-if(localStorage.getItem("user") !== "administrator"){
-  window.location.href="index.html";
-}
-
-function show(page){
-  document.getElementById("schools").style.display="none";
-  document.getElementById("users").style.display="none";
-  document.getElementById("groups").style.display="none";
-
-  document.getElementById(page).style.display="block";
+function show(id){
+  ["schools","users","groups"].forEach(x=>{
+    document.getElementById(x).style.display="none";
+  });
+  document.getElementById(id).style.display="block";
 }
 
 async function createSchool(){
@@ -100,8 +106,7 @@ async function createSchool(){
   });
 
   let data = await res.json();
-
-  alert("Школа создана!\nID: "+data.schoolId+"\nЛогин: "+data.login+"\nПароль: "+data.password);
+  alert("ID: "+data.schoolId);
 
   load();
 }
@@ -110,26 +115,17 @@ async function load(){
   let res = await fetch(API+"/all-data");
   let data = await res.json();
 
-  // школы
-  let schoolsHTML = "";
-  data.schools.forEach(s=>{
-    schoolsHTML += <p>${s.name} (ID: ${s._id})</p>;
-  });
-  schoolsList.innerHTML = schoolsHTML;
+  schoolsTable.innerHTML = data.schools.map(s =>
+    <tr><td>${s.name}</td><td>${s._id}</td></tr>
+  ).join("");
 
-  // пользователи
-  let usersHTML = "";
-  data.users.forEach(u=>{
-    usersHTML += <p>${u.name} (${u.role})</p>;
-  });
-  usersList.innerHTML = usersHTML;
+  usersTable.innerHTML = data.users.map(u =>
+    <tr><td>${u.name}</td><td>${u.role}</td></tr>
+  ).join("");
 
-  // группы
-  let groupsHTML = "";
-  data.groups.forEach(g=>{
-    groupsHTML += <p>${g.name}</p>;
-  });
-  groupsList.innerHTML = groupsHTML;
+  groupsTable.innerHTML = data.groups.map(g =>
+    <tr><td>${g.name}</td></tr>
+  ).join("");
 }
 
 load();
