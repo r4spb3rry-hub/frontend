@@ -35,6 +35,8 @@ button {background:#e91e63;color:white;border:none;padding:10px;}
   <button onclick="createGroup()">Создать</button>
 
   <div id="groupsList"></div>
+
+  <button onclick="generateSchedule()">Создать расписание</button>
 </div>
 
 </div>
@@ -73,6 +75,17 @@ async function createGroup(){
   });
 
   alert("Создано");
+}
+  async function generateSchedule(){
+  let groupId = prompt("Введите ID группы");
+
+  await fetch(API+"/generate-schedule",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ groupId })
+  });
+
+  alert("Расписание создано");
 }
 </script>
 
