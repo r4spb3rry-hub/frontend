@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+
 <style>
 body {margin:0;font-family:Arial;background:#f8e1e7;}
 .nav {background:#e91e63;color:white;padding:15px;display:flex;gap:20px;}
+.nav div {cursor:pointer;}
 .container {padding:20px;}
 .card {background:white;padding:20px;border-radius:10px;margin-top:20px;}
-table {width:100%;border-collapse:collapse;}
-td,th{border:1px solid #ddd;padding:10px;}
-button{background:#e91e63;color:white;border:none;padding:8px;}
+input,button{padding:10px;margin:5px;}
+button{background:#e91e63;color:white;border:none;}
 </style>
 </head>
 
@@ -17,44 +19,55 @@ button{background:#e91e63;color:white;border:none;padding:8px;}
 <div class="nav">
   <div onclick="show('teachers')">Преподаватели</div>
   <div onclick="show('groups')">Группы</div>
+  <div onclick="show('subjects')">Предметы</div>
+  <div onclick="show('rooms')">Кабинеты</div>
+  <div onclick="show('time')">Время</div>
 </div>
 
 <div class="container">
 
 <div id="teachers" class="card">
-<h2>Преподаватели</h2>
-
+<h2>Добавить преподавателя</h2>
 <input id="name" placeholder="Имя">
 <button onclick="addTeacher()">Добавить</button>
-
-<table>
-<tr><th>Имя</th></tr>
-<tbody id="teachersTable"></tbody>
-</table>
 </div>
 
 <div id="groups" class="card" style="display:none">
 <h2>Группы</h2>
-
 <input id="groupName" placeholder="Название">
 <button onclick="createGroup()">Создать</button>
-
 <button onclick="generateSchedule()">Создать расписание</button>
+</div>
 
-<table>
-<tr><th>Название</th></tr>
-<tbody id="groupsTable"></tbody>
-</table>
+<div id="subjects" class="card" style="display:none">
+<h2>Предметы</h2>
+<input id="subName" placeholder="Название">
+<input id="subHours" placeholder="Часы">
+<button onclick="addSubject()">Добавить</button>
+</div>
+
+<div id="rooms" class="card" style="display:none">
+<h2>Кабинеты</h2>
+<input id="roomName" placeholder="Номер">
+<button onclick="addRoom()">Добавить</button>
+</div>
+
+<div id="time" class="card" style="display:none">
+<h2>Время занятий</h2>
+<input id="start" placeholder="Начало">
+<input id="end" placeholder="Конец">
+<button onclick="addTime()">Добавить</button>
 </div>
 
 </div>
 
 <script>
-const API="https://eduflow-92s4.onrender.com";
+const API = "https://eduflow-92s4.onrender.com";
 
 function show(id){
-  teachers.style.display="none";
-  groups.style.display="none";
+  ["teachers","groups","subjects","rooms","time"].forEach(x=>{
+    document.getElementById(x).style.display="none";
+  });
   document.getElementById(id).style.display="block";
 }
 
@@ -82,11 +95,11 @@ async function createGroup(){
     })
   });
 
-  alert("Создано");
+  alert("Группа создана");
 }
 
 async function generateSchedule(){
-  let groupId = prompt("ID группы");
+  let groupId = prompt("Введите ID группы");
 
   await fetch(API+"/generate-schedule",{
     method:"POST",
@@ -97,7 +110,48 @@ async function generateSchedule(){
     })
   });
 
-  alert("Готово");
+  alert("Расписание создано");
+}
+
+async function addSubject(){
+  await fetch(API+"/add-subject",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:subName.value,
+      hours:subHours.value,
+      schoolId:localStorage.getItem("schoolId")
+    })
+  });
+
+  alert("Добавлено");
+}
+
+async function addRoom(){
+  await fetch(API+"/add-room",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:roomName.value,
+      schoolId:localStorage.getItem("schoolId")
+    })
+  });
+
+  alert("Добавлено");
+}
+
+async function addTime(){
+  await fetch(API+"/add-timeslot",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      start:start.value,
+      end:end.value,
+      schoolId:localStorage.getItem("schoolId")
+    })
+  });
+
+  alert("Добавлено");
 }
 </script>
 
