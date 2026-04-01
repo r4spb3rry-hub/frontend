@@ -1,27 +1,135 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
-body {background:#f8e1e7;text-align:center;font-family:Arial;}
+body {margin:0;font-family:Arial;background:#f8e1e7;}
+
+.nav {
+  background:#e91e63;
+  padding:15px;
+  color:white;
+  display:flex;
+  gap:20px;
+}
+
+.nav div {
+  cursor:pointer;
+}
+
+.container {
+  padding:20px;
+}
+
+.box {
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  margin-top:20px;
+}
+
+input, button {
+  padding:10px;
+  margin:5px;
+}
+
+button {
+  background:#e91e63;
+  color:white;
+  border:none;
+}
 </style>
 </head>
 
 <body>
 
-<h1>СУПЕР АДМИН</h1>
+<div class="nav">
+  <div onclick="show('schools')">Школы</div>
+  <div onclick="show('users')">Пользователи</div>
+  <div onclick="show('groups')">Группы</div>
+</div>
+
+<div class="container">
+
+<div id="schools" class="box">
+  <h2>Учебные заведения</h2>
+
+  <input id="schoolName" placeholder="Название школы">
+  <input id="adminName" placeholder="Имя администратора">
+
+  <button onclick="createSchool()">Создать</button>
+
+  <div id="schoolsList"></div>
+</div>
+
+<div id="users" class="box" style="display:none">
+  <h2>Все пользователи</h2>
+  <div id="usersList"></div>
+</div>
+
+<div id="groups" class="box" style="display:none">
+  <h2>Все группы</h2>
+  <div id="groupsList"></div>
+</div>
+
+</div>
 
 <script>
-const API="https://eduflow-92s4.onrender.com";
+const API = "https://eduflow-92s4.onrender.com";
 
-if(localStorage.getItem("user")!=="administrator"){
+if(localStorage.getItem("user") !== "administrator"){
   window.location.href="index.html";
 }
 
-async function load(){
-  let res=await fetch(API+"/all-data");
-  let data=await res.json();
+function show(page){
+  document.getElementById("schools").style.display="none";
+  document.getElementById("users").style.display="none";
+  document.getElementById("groups").style.display="none";
 
-  console.log(data);
+  document.getElementById(page).style.display="block";
+}
+
+async function createSchool(){
+  let res = await fetch(API+"/create-school",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      schoolName:schoolName.value,
+      adminName:adminName.value
+    })
+  });
+
+  let data = await res.json();
+
+  alert("Школа создана!\nID: "+data.schoolId+"\nЛогин: "+data.login+"\nПароль: "+data.password);
+
+  load();
+}
+
+async function load(){
+  let res = await fetch(API+"/all-data");
+  let data = await res.json();
+
+  // школы
+  let schoolsHTML = "";
+  data.schools.forEach(s=>{
+    schoolsHTML += <p>${s.name} (ID: ${s._id})</p>;
+  });
+  schoolsList.innerHTML = schoolsHTML;
+
+  // пользователи
+  let usersHTML = "";
+  data.users.forEach(u=>{
+    usersHTML += <p>${u.name} (${u.role})</p>;
+  });
+  usersList.innerHTML = usersHTML;
+
+  // группы
+  let groupsHTML = "";
+  data.groups.forEach(g=>{
+    groupsHTML += <p>${g.name}</p>;
+  });
+  groupsList.innerHTML = groupsHTML;
 }
 
 load();
