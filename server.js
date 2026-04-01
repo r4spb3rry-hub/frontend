@@ -14,39 +14,41 @@ mongoose.connect(process.env.MONGO_URI)
 
 /* ===== МОДЕЛИ ===== */
 
-// пользователь
 const User = mongoose.model("User", {
   login: String,
   password: String,
-  role: String, // student / teacher / admin
+  role: String,
   schoolId: String,
   name: String
 });
 
-// школа
 const School = mongoose.model("School", {
   name: String
 });
 
-// группа
 const Group = mongoose.model("Group", {
   name: String,
   schoolId: String,
   students: [String]
 });
 
-// предмет
-const Subject = mongoose.model("Subject", {
-  name: String
-});
-
-// кабинет
 const Room = mongoose.model("Room", {
   name: String,
   schoolId: String
 });
 
-// расписание
+const SubjectPlan = mongoose.model("SubjectPlan", {
+  name: String,
+  hours: Number,
+  schoolId: String
+});
+
+const TimeSlot = mongoose.model("TimeSlot", {
+  start: String,
+  end: String,
+  schoolId: String
+});
+
 const Schedule = mongoose.model("Schedule", {
   groupId: String,
   subject: String,
@@ -57,7 +59,7 @@ const Schedule = mongoose.model("Schedule", {
   cancelled: { type: Boolean, default: false }
 });
 
-/* ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===== */
+/* ===== ВСПОМОГАТЕЛЬНОЕ ===== */
 
 function generateLogin(name) {
   return name.toLowerCase().replaceAll(" ", "") + Math.floor(Math.random() * 1000);
@@ -89,12 +91,7 @@ app.post("/create-school", async (req, res) => {
 
   await admin.save();
 
-  res.send({
-    status: "created",
-    schoolId: school._id,
-    login,
-    password
-  });
+  res.send({ schoolId: school._id, login, password });
 });
 
 // вход
@@ -105,13 +102,10 @@ app.post("/login", async (req, res) => {
 
   if (!user) return res.send({ status: "error" });
 
-  res.send({
-    status: "ok",
-    user
-  });
+  res.send({ status: "ok", user });
 });
 
-// добавить преподавателя
+// преподаватель
 app.post("/add-teacher", async (req, res) => {
   const { name, schoolId } = req.body;
 
@@ -131,17 +125,17 @@ app.post("/add-teacher", async (req, res) => {
   res.send({ login, password });
 });
 
-// создать группу
+// группы
 app.post("/create-group", async (req, res) => {
   const { name, schoolId } = req.body;
 
   const group = new Group({ name, schoolId, students: [] });
   await group.save();
 
-  res.send({ status: "created" });
+  res.send({ status: "ok" });
 });
 
-// добавить ученика
+// ученик
 app.post("/add-student", async (req, res) => {
   const { name, groupId, schoolId } = req.body;
 
@@ -165,26 +159,56 @@ app.post("/add-student", async (req, res) => {
   res.send({ login, password });
 });
 
-// получить пользователей школы
-app.get("/users", async (req, res) => {
-  const { schoolId } = req.query;
+/* ===== ПРЕДМЕТЫ ===== */
 
-  const users = await User.find({ schoolId });
-  res.send(users);
+app.post("/add-subject", async (req, res) => {
+  const { name, hours, schoolId } = req.body;
+
+  const subject = new SubjectPlan({ name, hours, schoolId });
+  await subject.save();
+
+  res.send({ status: "ok" });
 });
 
-// получить все данные (для тебя)
-app.get("/all-data", async (req, res) => {
-  const users = await User.find();
-  const schools = await School.find();
-  const groups = await Group.find();
+app.get("/subjects", async (req, res) => {
+  const data = await SubjectPlan.find({ schoolId: req.query.schoolId });
+  res.send(data);
+});
 
-  res.send({ users, schools, groups });
+/* ===== КАБИНЕТЫ ===== */
+
+app.post("/add-room", async (req, res) => {
+  const { name, schoolId } = req.body;
+
+  const room = new Room({ name, schoolId });
+  await room.save();
+
+  res.send({ status: "ok" });
+});
+
+app.get("/rooms", async (req, res) => {
+  const data = await Room.find({ schoolId: req.query.schoolId });
+  res.send(data);
+});
+
+/* ===== ВРЕМЯ ===== */
+
+app.post("/add-timeslot", async (req, res) => {
+  const { start, end, schoolId } = req.body;
+
+  const slot = new TimeSlot({ start, end, schoolId });
+  await slot.save();
+
+  res.send({ status: "ok" });
+});
+
+app.get("/timeslots", async (req, res) => {
+  const data = await TimeSlot.find({ schoolId: req.query.schoolId });
+  res.send(data);
 });
 
 /* ===== РАСПИСАНИЕ ===== */
 
-// генерация расписания
 app.post("/generate-schedule", async (req, res) => {
   const { groupId, schoolId } = req.body;
 
@@ -197,8 +221,8 @@ app.post("/generate-schedule", async (req, res) => {
   for (let day = 0; day < 7; day++) {
     for (let t = 0; t < times.length; t++) {
 
-      let subject = subjects[Math.floor(Math.random()*subjects.length)];
-      let room = rooms[Math.floor(Math.random()*rooms.length)];
+      let subject = subjects[Math.floor(Math.random() * subjects.length)];
+      let room = rooms[Math.floor(Math.random() * rooms.length)];
 
       const lesson = new Schedule({
         groupId,
@@ -216,19 +240,13 @@ app.post("/generate-schedule", async (req, res) => {
   res.send({ status: "created" });
 });
 
-// получить расписание
 app.get("/schedule", async (req, res) => {
-  const { groupId } = req.query;
-
-  const lessons = await Schedule.find({ groupId });
+  const lessons = await Schedule.find({ groupId: req.query.groupId });
   res.send(lessons);
 });
 
-// отменить занятие
 app.post("/cancel-lesson", async (req, res) => {
-  const { lessonId } = req.body;
-
-  await Schedule.findByIdAndUpdate(lessonId, {
+  await Schedule.findByIdAndUpdate(req.body.lessonId, {
     cancelled: true
   });
 
@@ -238,76 +256,4 @@ app.post("/cancel-lesson", async (req, res) => {
 /* ===== ЗАПУСК ===== */
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Сервер запущен на порту " + PORT));
-
-/* ===== НАСТРОЙКИ ШКОЛЫ ===== */
-
-// время уроков
-const TimeSlot = mongoose.model("TimeSlot", {
-  schoolId: String,
-  start: String,
-  end: String
-});
-
-// предмет с часами
-const SubjectPlan = mongoose.model("SubjectPlan", {
-  schoolId: String,
-  name: String,
-  hours: Number
-});
-
-/* ===== API ===== */
-
-// добавить предмет
-app.post("/add-subject", async (req, res) => {
-  const { name, hours, schoolId } = req.body;
-
-  const subject = new SubjectPlan({ name, hours, schoolId });
-  await subject.save();
-
-  res.send({ status: "ok" });
-});
-
-// получить предметы
-app.get("/subjects", async (req, res) => {
-  const { schoolId } = req.query;
-
-  const data = await SubjectPlan.find({ schoolId });
-  res.send(data);
-});
-
-// добавить кабинет
-app.post("/add-room", async (req, res) => {
-  const { name, schoolId } = req.body;
-
-  const room = new Room({ name, schoolId });
-  await room.save();
-
-  res.send({ status: "ok" });
-});
-
-// получить кабинеты
-app.get("/rooms", async (req, res) => {
-  const { schoolId } = req.query;
-
-  const data = await Room.find({ schoolId });
-  res.send(data);
-});
-
-// добавить время урока
-app.post("/add-timeslot", async (req, res) => {
-  const { start, end, schoolId } = req.body;
-
-  const slot = new TimeSlot({ start, end, schoolId });
-  await slot.save();
-
-  res.send({ status: "ok" });
-});
-
-// получить время
-app.get("/timeslots", async (req, res) => {
-  const { schoolId } = req.query;
-
-  const data = await TimeSlot.find({ schoolId });
-  res.send(data);
-});
+app.listen(PORT, () => console.log("Сервер запущен"));
