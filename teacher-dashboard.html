@@ -1,58 +1,14 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Кабинет преподавателя</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #2196F3;
-      color: white;
-      text-align: center;
-      padding-top: 100px;
-    }
-
-    .box {
-      background: white;
-      color: black;
-      padding: 30px;
-      border-radius: 10px;
-      display: inline-block;
-    }
-
-    button {
-      margin-top: 15px;
-      padding: 10px;
-      border: none;
-      background: #2196F3;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
+<style>
+body {background:#f8e1e7;font-family:Arial;text-align:center;}
+</style>
 </head>
-
 <body>
-  <div class="box">
-    <h1>Кабинет преподавателя</h1>
-    <p id="user"></p>
 
-    <button onclick="logout()">Выйти</button>
-  </div>
+<h1>Кабинет преподавателя</h1>
+<p>Здесь будут группы и расписание</p>
 
-  <script>
-    let user = localStorage.getItem("user");
-    let role = localStorage.getItem("role");
-
-    if (role !== "teacher") {
-      window.location.href = "index.html";
-    }
-
-    document.getElementById("user").innerText = "Привет, " + user;
-
-    function logout() {
-      localStorage.clear();
-      window.location.href = "index.html";
-    }
-  </script>
 </body>
 </html>
