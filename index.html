@@ -1,83 +1,54 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Выбор роли</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<title>EduFlow</title>
 
-    .container {
-      text-align: center;
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #f8e1e7;
+  text-align: center;
+}
 
-    h1 {
-      margin-bottom: 30px;
-    }
+.box {
+  background: #ffffff;
+  padding: 40px;
+  margin: 100px auto;
+  width: 300px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
 
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    button {
-      padding: 15px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .student {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .teacher {
-      background-color: #2196F3;
-      color: white;
-    }
-
-    .admin {
-      background-color: #f44336;
-      color: white;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      opacity: 0.9;
-    }
-  </style>
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background: #e91e63;
+  color: white;
+  cursor: pointer;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Кто вы?</h1>
 
-    <div class="buttons">
-      <button class="student" onclick="goTo('student')">Учащийся</button>
-      <button class="teacher" onclick="goTo('teacher')">Преподаватель</button>
-      <button class="admin" onclick="goTo('admin')">Администратор</button>
-    </div>
-  </div>
+<div class="box">
+  <h2>Выберите вашу роль</h2>
 
-  <script>
-    function goTo(role) {
-      window.location.href = role + ".html";
-    }
-  </script>
+  <button onclick="go('student')">Учащийся</button>
+  <button onclick="go('teacher')">Преподаватель</button>
+  <button onclick="go('admin')">Администратор</button>
+</div>
+
+<script>
+function go(role){
+  window.location.href = role + ".html";
+}
+</script>
+
 </body>
 </html>
