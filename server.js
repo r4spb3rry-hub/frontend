@@ -131,3 +131,45 @@ app.get("/groups", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Сервер запущен"));
+/* ===== РАСПИСАНИЕ ===== */
+
+const Schedule = mongoose.model("Schedule", {
+  groupId: String,
+  subject: String,
+  teacher: String,
+  date: String,
+  time: String
+});
+
+// создать расписание
+app.post("/generate-schedule", async (req, res) => {
+  const { groupId } = req.body;
+
+  const days = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
+  const times = ["09:00","11:00","13:00"];
+
+  for (let i = 0; i < days.length; i++) {
+    for (let j = 0; j < times.length; j++) {
+
+      const lesson = new Schedule({
+        groupId,
+        subject: "Предмет " + (j+1),
+        teacher: "Преподаватель",
+        date: days[i],
+        time: times[j]
+      });
+
+      await lesson.save();
+    }
+  }
+
+  res.send({ status: "created" });
+});
+
+// получить расписание группы
+app.get("/schedule", async (req, res) => {
+  const { groupId } = req.query;
+
+  const lessons = await Schedule.find({ groupId });
+  res.send(lessons);
+});
