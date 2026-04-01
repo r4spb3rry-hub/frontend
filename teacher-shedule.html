@@ -2,32 +2,58 @@
 <html>
 <head>
 <style>
-body {background:#f8e1e7;font-family:Arial;text-align:center;}
+body {background:#f8e1e7;font-family:Arial;}
+table {width:90%;margin:50px auto;background:white;border-collapse:collapse;}
+td,th{border:1px solid #ddd;padding:10px;text-align:center;}
+button{background:#e91e63;color:white;border:none;padding:5px;}
 </style>
 </head>
 
 <body>
 
-<h1>Расписание преподавателя</h1>
+<h2 style="text-align:center;">Расписание преподавателя</h2>
 
-<div id="schedule"></div>
+<table>
+<tr>
+<th>Дата</th>
+<th>Время</th>
+<th>Предмет</th>
+<th>Кабинет</th>
+<th></th>
+</tr>
+<tbody id="table"></tbody>
+</table>
 
 <script>
 const API="https://eduflow-92s4.onrender.com";
 
 async function load(){
-  let groupId = prompt("Введите ID группы");
+  let groupId = prompt("ID группы");
 
   let res = await fetch(API+"/schedule?groupId="+groupId);
   let data = await res.json();
 
-  let html="";
+  table.innerHTML = data.map(l=>{
+    let d = new Date(l.date).toLocaleDateString();
 
-  data.forEach(l=>{
-    html += <p>${l.date} ${l.time} ${l.subject}</p>;
+    return `<tr>
+      <td>${d}</td>
+      <td>${l.time}</td>
+      <td>${l.subject}</td>
+      <td>${l.room}</td>
+      <td><button onclick="cancel('${l._id}')">Больничный</button></td>
+    </tr>`;
+  }).join("");
+}
+
+async function cancel(id){
+  await fetch(API+"/cancel-lesson",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({lessonId:id})
   });
 
-  schedule.innerHTML = html;
+  load();
 }
 
 load();
