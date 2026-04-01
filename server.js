@@ -188,17 +188,17 @@ app.get("/all-data", async (req, res) => {
 app.post("/generate-schedule", async (req, res) => {
   const { groupId, schoolId } = req.body;
 
-  const subjects = await Subject.find();
+  const subjects = await SubjectPlan.find({ schoolId });
   const rooms = await Room.find({ schoolId });
+  const times = await TimeSlot.find({ schoolId });
 
-  const times = ["09:00", "11:00", "13:00"];
   let startDate = new Date();
 
   for (let day = 0; day < 7; day++) {
-    for (let i = 0; i < times.length; i++) {
+    for (let t = 0; t < times.length; t++) {
 
-      let subject = subjects[Math.floor(Math.random() * subjects.length)];
-      let room = rooms[Math.floor(Math.random() * rooms.length)];
+      let subject = subjects[Math.floor(Math.random()*subjects.length)];
+      let room = rooms[Math.floor(Math.random()*rooms.length)];
 
       const lesson = new Schedule({
         groupId,
@@ -206,7 +206,7 @@ app.post("/generate-schedule", async (req, res) => {
         teacher: "Преподаватель",
         room: room.name,
         date: new Date(startDate.getTime() + day * 86400000),
-        time: times[i]
+        time: times[t].start + " - " + times[t].end
       });
 
       await lesson.save();
@@ -239,3 +239,75 @@ app.post("/cancel-lesson", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Сервер запущен на порту " + PORT));
+
+/* ===== НАСТРОЙКИ ШКОЛЫ ===== */
+
+// время уроков
+const TimeSlot = mongoose.model("TimeSlot", {
+  schoolId: String,
+  start: String,
+  end: String
+});
+
+// предмет с часами
+const SubjectPlan = mongoose.model("SubjectPlan", {
+  schoolId: String,
+  name: String,
+  hours: Number
+});
+
+/* ===== API ===== */
+
+// добавить предмет
+app.post("/add-subject", async (req, res) => {
+  const { name, hours, schoolId } = req.body;
+
+  const subject = new SubjectPlan({ name, hours, schoolId });
+  await subject.save();
+
+  res.send({ status: "ok" });
+});
+
+// получить предметы
+app.get("/subjects", async (req, res) => {
+  const { schoolId } = req.query;
+
+  const data = await SubjectPlan.find({ schoolId });
+  res.send(data);
+});
+
+// добавить кабинет
+app.post("/add-room", async (req, res) => {
+  const { name, schoolId } = req.body;
+
+  const room = new Room({ name, schoolId });
+  await room.save();
+
+  res.send({ status: "ok" });
+});
+
+// получить кабинеты
+app.get("/rooms", async (req, res) => {
+  const { schoolId } = req.query;
+
+  const data = await Room.find({ schoolId });
+  res.send(data);
+});
+
+// добавить время урока
+app.post("/add-timeslot", async (req, res) => {
+  const { start, end, schoolId } = req.body;
+
+  const slot = new TimeSlot({ start, end, schoolId });
+  await slot.save();
+
+  res.send({ status: "ok" });
+});
+
+// получить время
+app.get("/timeslots", async (req, res) => {
+  const { schoolId } = req.query;
+
+  const data = await TimeSlot.find({ schoolId });
+  res.send(data);
+});
