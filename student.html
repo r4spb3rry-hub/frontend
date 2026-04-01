@@ -1,70 +1,88 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Учащийся</title>
+<meta charset="UTF-8">
+
+<style>
+body {
+  background: #f8e1e7;
+  font-family: Arial;
+  text-align: center;
+}
+
+.box {
+  background: white;
+  width: 300px;
+  margin: 100px auto;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+input, button {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+button {
+  background: #e91e63;
+  color: white;
+  border: none;
+}
+</style>
 </head>
 
 <body>
-  <h2>Учащийся</h2>
 
-  <input id="login" placeholder="Логин"><br><br>
-  <input id="password" type="password" placeholder="Пароль"><br><br>
-  <input id="schoolId" placeholder="ID школы">
+<div class="box">
+<h2>Учащийся</h2>
 
-  <button onclick="login()">Войти</button>
-  <button onclick="register()">Зарегистрироваться</button>
+<input id="login" placeholder="Логин">
+<input id="password" type="password" placeholder="Пароль">
+<input id="schoolId" placeholder="ID школы">
 
-  <p id="error" style="color:red;"></p>
+<button onclick="register()">Регистрация</button>
+<button onclick="login()">Вход</button>
+</div>
 
-  <script>
-    const API = "https://eduflow-92s4.onrender.com";
+<script>
+const API = "https://eduflow-92s4.onrender.com";
 
-    async function login() {
-      let login = document.getElementById("login").value;
-      let password = document.getElementById("password").value;
+async function register(){
+  await fetch(API+"/register",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      login:login.value,
+      password:password.value,
+      role:"student",
+      schoolId:schoolId.value
+    })
+  });
+  alert("Готово");
+}
 
-      let res = await fetch(API + "/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ login, password })
-      });
+async function login(){
+  let res = await fetch(API+"/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      login:login.value,
+      password:password.value
+    })
+  });
 
-      let data = await res.json();
+  let data = await res.json();
 
-      if (data.status === "ok") {
-        localStorage.setItem("user", data.login);
-        localStorage.setItem("role", data.role);
+  if(data.status==="ok"){
+    localStorage.setItem("user",data.user.login);
+    localStorage.setItem("role",data.user.role);
+    localStorage.setItem("schoolId",data.user.schoolId);
 
-        if (data.role === "student") {
-          window.location.href = "student-dashboard.html";
-        } else if (data.role === "teacher") {
-          window.location.href = "teacher-dashboard.html";
-        } else if (data.role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        }
+    window.location.href="student-dashboard.html";
+  }
+}
+</script>
 
-      } else {
-        document.getElementById("error").innerText = "Ошибка входа";
-      }
-    }
-
-    async function register() {
-      let login = document.getElementById("login").value;
-      let password = document.getElementById("password").value;
-
-      await fetch(API + "/register", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          login,
-          password,
-          role: "student"
-        })
-      });
-
-      alert("Пользователь создан");
-    }
-  </script>
 </body>
 </html>
