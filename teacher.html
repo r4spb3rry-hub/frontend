@@ -1,40 +1,44 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Преподаватель</title>
+<style>
+body {background:#f8e1e7;text-align:center;font-family:Arial;}
+.box {background:white;width:300px;margin:100px auto;padding:30px;border-radius:10px;}
+input,button{width:90%;padding:10px;margin:10px;}
+button{background:#e91e63;color:white;border:none;}
+</style>
 </head>
 
 <body>
-  <h2>Преподаватель</h2>
 
-<input id="login" placeholder="Логин"><br>
-<input id="password" placeholder="Пароль"><br>
-<input id="schoolId" placeholder="ID школы"><br>
+<div class="box">
+<h2>Преподаватель</h2>
 
-<button onclick="register()">Вход</button>
+<input id="login" placeholder="Логин">
+<input id="password" placeholder="Пароль">
+<input id="schoolId" placeholder="ID школы">
+
+<button onclick="register()">Регистрация</button>
+</div>
 
 <script>
-const API = "https://eduflow-92s4.onrender.com";
+const API="https://eduflow-92s4.onrender.com";
 
-async function register() {
-  let login = document.getElementById("login").value;
-  let password = document.getElementById("password").value;
-  let schoolId = document.getElementById("schoolId").value;
-
-  await fetch(API + "/register", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      login,
-      password,
-      role: "teacher",
-      schoolId
+async function register(){
+  await fetch(API+"/register",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      login:login.value,
+      password:password.value,
+      role:"teacher",
+      schoolId:schoolId.value
     })
   });
 
   alert("Готово");
 }
 </script>
+
 </body>
 </html>
