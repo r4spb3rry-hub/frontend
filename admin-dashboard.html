@@ -3,10 +3,12 @@
 <head>
 <style>
 body {margin:0;font-family:Arial;background:#f8e1e7;}
-.nav {background:#e91e63;padding:15px;color:white;display:flex;gap:20px;}
+.nav {background:#e91e63;color:white;padding:15px;display:flex;gap:20px;}
 .container {padding:20px;}
-.box {background:white;padding:20px;border-radius:10px;margin-top:20px;}
-button {background:#e91e63;color:white;border:none;padding:10px;}
+.card {background:white;padding:20px;border-radius:10px;margin-top:20px;}
+table {width:100%;border-collapse:collapse;}
+td,th{border:1px solid #ddd;padding:10px;}
+button{background:#e91e63;color:white;border:none;padding:8px;}
 </style>
 </head>
 
@@ -19,24 +21,30 @@ button {background:#e91e63;color:white;border:none;padding:10px;}
 
 <div class="container">
 
-<div id="teachers" class="box">
-  <h2>Добавить преподавателя</h2>
+<div id="teachers" class="card">
+<h2>Преподаватели</h2>
 
-  <input id="name" placeholder="Имя">
-  <button onclick="addTeacher()">Добавить</button>
+<input id="name" placeholder="Имя">
+<button onclick="addTeacher()">Добавить</button>
 
-  <div id="teachersList"></div>
+<table>
+<tr><th>Имя</th></tr>
+<tbody id="teachersTable"></tbody>
+</table>
 </div>
 
-<div id="groups" class="box" style="display:none">
-  <h2>Группы</h2>
+<div id="groups" class="card" style="display:none">
+<h2>Группы</h2>
 
-  <input id="groupName" placeholder="Название группы">
-  <button onclick="createGroup()">Создать</button>
+<input id="groupName" placeholder="Название">
+<button onclick="createGroup()">Создать</button>
 
-  <div id="groupsList"></div>
+<button onclick="generateSchedule()">Создать расписание</button>
 
-  <button onclick="generateSchedule()">Создать расписание</button>
+<table>
+<tr><th>Название</th></tr>
+<tbody id="groupsTable"></tbody>
+</table>
 </div>
 
 </div>
@@ -44,10 +52,10 @@ button {background:#e91e63;color:white;border:none;padding:10px;}
 <script>
 const API="https://eduflow-92s4.onrender.com";
 
-function show(p){
+function show(id){
   teachers.style.display="none";
   groups.style.display="none";
-  document.getElementById(p).style.display="block";
+  document.getElementById(id).style.display="block";
 }
 
 async function addTeacher(){
@@ -76,16 +84,20 @@ async function createGroup(){
 
   alert("Создано");
 }
-  async function generateSchedule(){
-  let groupId = prompt("Введите ID группы");
+
+async function generateSchedule(){
+  let groupId = prompt("ID группы");
 
   await fetch(API+"/generate-schedule",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ groupId })
+    body:JSON.stringify({
+      groupId,
+      schoolId:localStorage.getItem("schoolId")
+    })
   });
 
-  alert("Расписание создано");
+  alert("Готово");
 }
 </script>
 
